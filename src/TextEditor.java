@@ -1,97 +1,132 @@
 import javax.swing.*;
-import javax.swing.event.CaretEvent;
-import javax.swing.event.CaretListener;
+import javax.swing.event.*;
 import java.awt.*;
+import java.awt.event.*;
 
 public class TextEditor extends JFrame {
-    private final JTextArea textArea;
-    private JComboBox<String> fontsCombo;
-    private JToggleButton blackStyle;
-    private JToggleButton cursiveStyle;
+    private JTextArea textArea;
+    private JComboBox<String> fontComboBox;
+    private JToggleButton boldButton;
+    private JToggleButton italicButton;
+    private JSpinner fontSizeSpinner;
+    private JSlider fontSizeSlider;
+    private static final int INITIAL_FONT_SIZE = 12;
 
     public TextEditor() {
-        setTitle("Editor de Texto");
+        setupFrame();
+        setupComponents();
+        setVisible(true);
+    }
+
+    private void setupFrame() {
+        setTitle("Text Editor");
         setSize(800, 800);
         setLocationRelativeTo(null);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        setLayout(new BorderLayout());
+    }
 
-        JPanel contentPane = new JPanel(new BorderLayout());
-        setContentPane(contentPane);
+    private void setupComponents() {
+        // create menu bar
+        setJMenuBar(createMenuBar());
 
-        // menu bar
-        JMenuBar menuBar = createMenuBar();
-        setJMenuBar(menuBar);
+        // create option panel
+        add(createOptionPanel(), BorderLayout.NORTH);
 
-        // option panel
-        JPanel optionPanel = createOptionPanel();
-        contentPane.add(optionPanel, BorderLayout.NORTH);
-
-        // text area
+        // create text area
         textArea = new JTextArea();
-        textArea.setFont(new Font("Arial", Font.PLAIN, 12));
-        JScrollPane scrollPane = new JScrollPane(textArea);
-        contentPane.add(scrollPane, BorderLayout.CENTER);
+        textArea.setFont(new Font(Font.SANS_SERIF, Font.PLAIN, INITIAL_FONT_SIZE));
+        add(new JScrollPane(textArea), BorderLayout.CENTER);
 
-        // CaretListener to update style buttons
-        textArea.addCaretListener(new CaretListener() {
-            @Override
-            public void caretUpdate(CaretEvent e) {
-                Font currentFont = textArea.getFont();
-                blackStyle.setSelected(currentFont.isBold());
-                cursiveStyle.setSelected(currentFont.isItalic());
-            }
-        });
-
-        // default config
-        setVisible(true);
+        // add caret listener
+        textArea.addCaretListener(e -> updateStyleButtons());
     }
 
     private JMenuBar createMenuBar() {
         JMenuBar menuBar = new JMenuBar();
-        JMenu file = new JMenu("Archivo");
-        JMenu style = new JMenu("Estilo");
-
-        JMenuItem newFile = new JMenuItem("Nuevo");
-        JMenuItem exitFile = new JMenuItem("Salir");
-
-        blackStyle = new JToggleButton("Negrita");
-        cursiveStyle = new JToggleButton("Cursiva");
-
-        file.add(newFile);
-        file.add(exitFile);
-        style.add(blackStyle);
-        style.add(cursiveStyle);
-        menuBar.add(file);
-        menuBar.add(style);
-
-        newFile.addActionListener(e -> textArea.setText(""));
-        exitFile.addActionListener(e -> System.exit(0));
-
-        blackStyle.addActionListener(e -> updateTextStyle());
-        cursiveStyle.addActionListener(e -> updateTextStyle());
-
+        menuBar.add(createFileMenu());
+        menuBar.add(createStyleMenu());
         return menuBar;
+    }
+
+    private JMenu createFileMenu() {
+        JMenu fileMenu = new JMenu("Archivo");
+        JMenuItem newItem = new JMenuItem("Nuevo");
+        JMenuItem exitItem = new JMenuItem("Salir");
+
+        newItem.addActionListener(e -> textArea.setText(""));
+        exitItem.addActionListener(e -> System.exit(0));
+
+        fileMenu.add(newItem);
+        fileMenu.add(exitItem);
+        return fileMenu;
+    }
+
+    private JMenu createStyleMenu() {
+        JMenu styleMenu = new JMenu("Estilo");
+        boldButton = new JToggleButton("Negrita");
+        italicButton = new JToggleButton("Cursiva");
+
+        boldButton.addActionListener(e -> updateTextStyle());
+        italicButton.addActionListener(e -> updateTextStyle());
+
+        styleMenu.add(boldButton);
+        styleMenu.add(italicButton);
+        return styleMenu;
     }
 
     private JPanel createOptionPanel() {
         JPanel optionPanel = new JPanel();
-        String[] fonts = GraphicsEnvironment.getLocalGraphicsEnvironment().getAvailableFontFamilyNames();
-        fontsCombo = new JComboBox<>(fonts);
-        optionPanel.add(fontsCombo);
-
-        fontsCombo.addActionListener(e -> {
-            Font currentFont = textArea.getFont();
-            textArea.setFont(new Font(fontsCombo.getSelectedItem().toString(), currentFont.getStyle(), currentFont.getSize()));
-        });
-
+        optionPanel.add(createFontComboBox());
+        optionPanel.add(createFontSizeSpinner());
+        optionPanel.add(createFontSizeSlider());
         return optionPanel;
     }
 
-    private void updateTextStyle() {
+    private JComboBox<String> createFontComboBox() {
+        String[] fonts = GraphicsEnvironment.getLocalGraphicsEnvironment().getAvailableFontFamilyNames();
+        fontComboBox = new JComboBox<>(fonts);
+        fontComboBox.addActionListener(e -> updateFont());
+        return fontComboBox;
+    }
+
+    private JSpinner createFontSizeSpinner() {
+        fontSizeSpinner = new JSpinner(new SpinnerNumberModel(INITIAL_FONT_SIZE, 1, 100, 1));
+        fontSizeSpinner.addChangeListener(e -> updateFontSize((int) fontSizeSpinner.getValue()));
+        return fontSizeSpinner;
+    }
+
+    private JSlider createFontSizeSlider() {
+        fontSizeSlider = new JSlider(JSlider.HORIZONTAL, 1, 100, INITIAL_FONT_SIZE);
+        fontSizeSlider.setMajorTickSpacing(10);
+        fontSizeSlider.setPaintLabels(true);
+        fontSizeSlider.addChangeListener(e -> updateFontSize(fontSizeSlider.getValue()));
+        return fontSizeSlider;
+    }
+
+    private void updateFont() {
         Font currentFont = textArea.getFont();
+        String newFontName = (String) fontComboBox.getSelectedItem();
+        textArea.setFont(new Font(newFontName, currentFont.getStyle(), currentFont.getSize()));
+    }
+
+    private void updateFontSize(int size) {
+        Font currentFont = textArea.getFont();
+        textArea.setFont(new Font(currentFont.getFontName(), currentFont.getStyle(), size));
+        fontSizeSpinner.setValue(size);
+        fontSizeSlider.setValue(size);
+    }
+
+    private void updateTextStyle() {
         int style = Font.PLAIN;
-        if (blackStyle.isSelected()) style |= Font.BOLD;
-        if (cursiveStyle.isSelected()) style |= Font.ITALIC;
-        textArea.setFont(new Font(currentFont.getFontName(), style, currentFont.getSize()));
+        if (boldButton.isSelected()) style |= Font.BOLD;
+        if (italicButton.isSelected()) style |= Font.ITALIC;
+        textArea.setFont(new Font(textArea.getFont().getFontName(), style, textArea.getFont().getSize()));
+    }
+
+    private void updateStyleButtons() {
+        Font currentFont = textArea.getFont();
+        boldButton.setSelected(currentFont.isBold());
+        italicButton.setSelected(currentFont.isItalic());
     }
 }
