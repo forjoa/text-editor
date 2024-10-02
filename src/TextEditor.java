@@ -31,9 +31,13 @@ public class TextEditor extends JFrame {
         // create option panel
         add(createOptionPanel(), BorderLayout.NORTH);
 
+        // create info panel
+        add(createInfoPanel(), BorderLayout.SOUTH);
+
         // create text area
         textArea = new JTextArea();
         textArea.setFont(new Font(Font.SANS_SERIF, Font.PLAIN, INITIAL_FONT_SIZE));
+
         add(new JScrollPane(textArea), BorderLayout.CENTER);
     }
 
@@ -117,5 +121,15 @@ public class TextEditor extends JFrame {
         if (boldButton.isSelected()) style |= Font.BOLD;
         if (italicButton.isSelected()) style |= Font.ITALIC;
         textArea.setFont(new Font(textArea.getFont().getFontName(), style | Font.PLAIN, textArea.getFont().getSize()));
+    }
+
+    private JPanel createInfoPanel() {
+        JPanel infoPanel = new JPanel();
+        JLabel infoText = new JLabel();
+        if (textArea != null && textArea.getLineCount() > 0) {
+            infoText.setText(textArea.getLineCount() + " líneas");
+            infoPanel.add(infoText);
+        }
+        return infoPanel;
     }
 }
