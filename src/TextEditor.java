@@ -97,8 +97,8 @@ public class TextEditor extends JFrame {
     }
 
     private JSlider createFontSizeSlider() {
-        fontSizeSlider = new JSlider(JSlider.HORIZONTAL, 1, 100, INITIAL_FONT_SIZE);
-        fontSizeSlider.setMajorTickSpacing(10);
+        fontSizeSlider = new JSlider(JSlider.HORIZONTAL, 12, 24, INITIAL_FONT_SIZE);
+        fontSizeSlider.setMajorTickSpacing(2);
         fontSizeSlider.setPaintLabels(true);
         fontSizeSlider.addChangeListener(e -> updateFontSize(fontSizeSlider.getValue()));
         return fontSizeSlider;
