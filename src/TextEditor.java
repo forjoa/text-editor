@@ -1,14 +1,24 @@
 import javax.swing.*;
 import java.awt.*;
+import java.awt.event.KeyEvent;
+import java.awt.event.KeyListener;
+import java.awt.event.MouseEvent;
+import java.awt.event.MouseMotionListener;
 
 public class TextEditor extends JFrame {
-    private JTextArea textArea;
+    private JTextArea textArea = new JTextArea();
     private JComboBox<String> fontComboBox;
     private JToggleButton boldButton;
     private JToggleButton italicButton;
     private JSpinner fontSizeSpinner;
     private JSlider fontSizeSlider;
     private static final int INITIAL_FONT_SIZE = 12;
+    private final JLabel infoText = new JLabel("Líneas: 0 Carácteres: 0 Palabras: 0 Fuente: 0");
+    // variables de informacion
+    private final String currentFont = Font.SANS_SERIF;
+    private int currentLines;
+    private int currentChars;
+    private int currectWords;
 
     public TextEditor() {
         setupFrame();
@@ -43,6 +53,38 @@ public class TextEditor extends JFrame {
         // create text area
         textArea = new JTextArea();
         textArea.setFont(new Font(Font.SANS_SERIF, Font.PLAIN, INITIAL_FONT_SIZE));
+
+        textArea.addKeyListener(new KeyListener() {
+            @Override
+            public void keyTyped(KeyEvent e) {
+
+            }
+
+            @Override
+            public void keyPressed(KeyEvent e) {
+
+            }
+
+            @Override
+            public void keyReleased(KeyEvent e) {
+                currentLines = textArea.getLineCount();
+                currentChars = knowCharsNumber();
+                currectWords = knowWordsNumber();
+                infoText.setText("Líneas: " + currentLines + " Carácteres: " + currentChars + " Palabras: " + currectWords + " Fuente: " + currentFont);
+            }
+        });
+
+        textArea.addMouseMotionListener(new MouseMotionListener() {
+            @Override
+            public void mouseDragged(MouseEvent e) {
+
+            }
+
+            @Override
+            public void mouseMoved(MouseEvent e) {
+
+            }
+        });
 
         add(new JScrollPane(textArea), BorderLayout.CENTER);
     }
@@ -116,6 +158,7 @@ public class TextEditor extends JFrame {
     private JComboBox<String> createFontComboBox() {
         String[] fonts = GraphicsEnvironment.getLocalGraphicsEnvironment().getAvailableFontFamilyNames();
         fontComboBox = new JComboBox<>(fonts);
+        fontComboBox.setSelectedItem(Font.SANS_SERIF);
         fontComboBox.addActionListener(e -> updateFont());
         return fontComboBox;
     }
@@ -151,6 +194,7 @@ public class TextEditor extends JFrame {
         Font currentFont = textArea.getFont();
         String newFontName = (String) fontComboBox.getSelectedItem();
         textArea.setFont(new Font(newFontName, currentFont.getStyle(), currentFont.getSize()));
+        infoText.setText("Líneas: " + currentLines + " Carácteres: " + currentChars + " Palabras: " + currectWords + " Fuente: " + newFontName);
     }
 
     /**
@@ -183,11 +227,25 @@ public class TextEditor extends JFrame {
      */
     private JPanel createInfoPanel() {
         JPanel infoPanel = new JPanel();
-        JLabel infoText = new JLabel("Información del archivo: ");
-        if (textArea != null && textArea.getLineCount() > 0) {
-            infoText.setText(textArea.getLineCount() + " líneas");
-        }
         infoPanel.add(infoText);
         return infoPanel;
+    }
+
+    /**
+     * función para obtener el número de caracteres a partir del texto del text area
+     *
+     * @return int número de caracteres
+     */
+    private int knowCharsNumber() {
+        return textArea.getText().split("").length;
+    }
+
+    /**
+     * función para obtener el número de palabras a partir del texto del text area
+     *
+     * @return int número de palabras
+     */
+    private int knowWordsNumber() {
+        return textArea.getText().split("\\s+").length;
     }
 }
