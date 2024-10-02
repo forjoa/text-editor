@@ -172,12 +172,11 @@ public class TextEditor extends JFrame {
         int style = Font.PLAIN;
         if (boldButton.isSelected()) style |= Font.BOLD;
         if (italicButton.isSelected()) style |= Font.ITALIC;
-        textArea.setFont(new Font(textArea.getFont().getFontName(), style | Font.PLAIN, textArea.getFont().getSize()));
+        textArea.setFont(new Font(textArea.getFont().getFontName(), style, textArea.getFont().getSize()));
     }
 
     /**
-     * función para initializar el panel con información del editor de texto
-     * la información que devuelve infoPanel:
+     * función para initializar el panel con información del editor de texto la información que devuelve infoPanel:
      * 1. El número de líneas
      *
      * @return JPanel toda la información del editor
