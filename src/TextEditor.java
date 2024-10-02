@@ -1,7 +1,5 @@
 import javax.swing.*;
-import javax.swing.event.*;
 import java.awt.*;
-import java.awt.event.*;
 
 public class TextEditor extends JFrame {
     private JTextArea textArea;
@@ -37,9 +35,6 @@ public class TextEditor extends JFrame {
         textArea = new JTextArea();
         textArea.setFont(new Font(Font.SANS_SERIF, Font.PLAIN, INITIAL_FONT_SIZE));
         add(new JScrollPane(textArea), BorderLayout.CENTER);
-
-        // add caret listener
-        textArea.addCaretListener(e -> updateStyleButtons());
     }
 
     private JMenuBar createMenuBar() {
@@ -121,12 +116,6 @@ public class TextEditor extends JFrame {
         int style = Font.PLAIN;
         if (boldButton.isSelected()) style |= Font.BOLD;
         if (italicButton.isSelected()) style |= Font.ITALIC;
-        textArea.setFont(new Font(textArea.getFont().getFontName(), style, textArea.getFont().getSize()));
-    }
-
-    private void updateStyleButtons() {
-        Font currentFont = textArea.getFont();
-        boldButton.setSelected(currentFont.isBold());
-        italicButton.setSelected(currentFont.isItalic());
+        textArea.setFont(new Font(textArea.getFont().getFontName(), style | Font.PLAIN, textArea.getFont().getSize()));
     }
 }
