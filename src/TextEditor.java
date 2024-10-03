@@ -6,7 +6,7 @@ import java.awt.event.MouseEvent;
 import java.awt.event.MouseMotionListener;
 
 public class TextEditor extends JFrame {
-    private JTextArea textArea = new JTextArea();
+    private final JTextArea textArea = new JTextArea();
     private JComboBox<String> fontComboBox;
     private JToggleButton boldButton;
     private JToggleButton italicButton;
@@ -14,11 +14,9 @@ public class TextEditor extends JFrame {
     private JSlider fontSizeSlider;
     private static final int INITIAL_FONT_SIZE = 12;
     private final JLabel infoText = new JLabel("Líneas: 0 Carácteres: 0 Palabras: 0 Fuente: 0");
-    // variables de informacion
-    private final String currentFont = Font.SANS_SERIF;
-    private int currentLines;
-    private int currentChars;
-    private int currectWords;
+
+    // variables de información
+    private String currentFont = Font.SANS_SERIF;
 
     public TextEditor() {
         setupFrame();
@@ -51,48 +49,56 @@ public class TextEditor extends JFrame {
         add(createInfoPanel(), BorderLayout.SOUTH);
 
         // create text area
-        textArea = new JTextArea();
-        textArea.setFont(new Font(Font.SANS_SERIF, Font.PLAIN, INITIAL_FONT_SIZE));
+        textArea.setFont(new Font(currentFont, Font.PLAIN, INITIAL_FONT_SIZE));
+        setupTextAreaListeners();
 
+        add(new JScrollPane(textArea), BorderLayout.CENTER);
+    }
+
+    /**
+     * agregamos los listeners necesarios al text area
+     */
+    private void setupTextAreaListeners() {
         textArea.addKeyListener(new KeyListener() {
             @Override
             public void keyTyped(KeyEvent e) {
-
             }
 
             @Override
             public void keyPressed(KeyEvent e) {
-
             }
 
             @Override
             public void keyReleased(KeyEvent e) {
-                currentLines = textArea.getLineCount();
-                currentChars = knowCharsNumber();
-                currectWords = knowWordsNumber();
-                infoText.setText("Líneas: " + currentLines + " Carácteres: " + currentChars + " Palabras: " + currectWords + " Fuente: " + currentFont);
+                updateTextInfo();
             }
         });
 
         textArea.addMouseMotionListener(new MouseMotionListener() {
             @Override
             public void mouseDragged(MouseEvent e) {
-
             }
 
             @Override
             public void mouseMoved(MouseEvent e) {
-
             }
         });
+    }
 
-        add(new JScrollPane(textArea), BorderLayout.CENTER);
+    /**
+     * función para actualizar la información del texto (líneas, caracteres, palabras)
+     */
+    private void updateTextInfo() {
+        int currentLines = textArea.getLineCount();
+        int currentChars = knowCharsNumber();
+        int currentWords = knowWordsNumber();
+        infoText.setText("Líneas: " + currentLines + " Carácteres: " + currentChars + " Palabras: " + currentWords + " Fuente: " + currentFont);
     }
 
     /**
      * función para crear la barra entera con los botones de las opciones tanto de "archivo" como de "estilos"
      *
-     * @return JMenuBar barra de navigación con todas las opciones
+     * @return JMenuBar barra de navegación con todas las opciones
      */
     private JMenuBar createMenuBar() {
         JMenuBar menuBar = new JMenuBar();
@@ -104,14 +110,17 @@ public class TextEditor extends JFrame {
     /**
      * función para crear los botones con las opciones de las acciones del menú "archivo"
      *
-     * @return JMenu con el típico contenido de la opción "file"
+     * @return JMenu con el típico contenido de la opción "archivo"
      */
     private JMenu createFileMenu() {
         JMenu fileMenu = new JMenu("Archivo");
         JMenuItem newItem = new JMenuItem("Nuevo");
         JMenuItem exitItem = new JMenuItem("Salir");
 
-        newItem.addActionListener(e -> textArea.setText(""));
+        newItem.addActionListener(e -> {
+            textArea.setText("");
+            infoText.setText("Líneas: 0 Carácteres: 0 Palabras: 0 Fuente: 0");
+        });
         exitItem.addActionListener(e -> System.exit(0));
 
         fileMenu.add(newItem);
@@ -158,7 +167,7 @@ public class TextEditor extends JFrame {
     private JComboBox<String> createFontComboBox() {
         String[] fonts = GraphicsEnvironment.getLocalGraphicsEnvironment().getAvailableFontFamilyNames();
         fontComboBox = new JComboBox<>(fonts);
-        fontComboBox.setSelectedItem(Font.SANS_SERIF);
+        fontComboBox.setSelectedItem(currentFont);
         fontComboBox.addActionListener(e -> updateFont());
         return fontComboBox;
     }
@@ -191,20 +200,20 @@ public class TextEditor extends JFrame {
      * función para actualizar la fuente seleccionada en el comboBox
      */
     private void updateFont() {
-        Font currentFont = textArea.getFont();
-        String newFontName = (String) fontComboBox.getSelectedItem();
-        textArea.setFont(new Font(newFontName, currentFont.getStyle(), currentFont.getSize()));
-        infoText.setText("Líneas: " + currentLines + " Carácteres: " + currentChars + " Palabras: " + currectWords + " Fuente: " + newFontName);
+        currentFont = (String) fontComboBox.getSelectedItem();
+        Font currentFontObj = textArea.getFont();
+        textArea.setFont(new Font(currentFont, currentFontObj.getStyle(), currentFontObj.getSize()));
+        updateTextInfo();
     }
 
     /**
-     * función para actualizar el tamaño de la letra enviando el nuevo tamaño por parametro como número entero
+     * función para actualizar el tamaño de la letra enviando el nuevo tamaño por parámetro como número entero
      *
      * @param size el nuevo valor del tamaño de la fuente
      */
     private void updateFontSize(int size) {
-        Font currentFont = textArea.getFont();
-        textArea.setFont(new Font(currentFont.getFontName(), currentFont.getStyle(), size));
+        Font currentFontObj = textArea.getFont();
+        textArea.setFont(new Font(currentFontObj.getFontName(), currentFontObj.getStyle(), size));
         fontSizeSpinner.setValue(size);
         fontSizeSlider.setValue(size);
     }
@@ -220,8 +229,7 @@ public class TextEditor extends JFrame {
     }
 
     /**
-     * función para initializar el panel con información del editor de texto la información que devuelve infoPanel:
-     * 1. El número de líneas
+     * función para initializar el panel con información del editor de texto
      *
      * @return JPanel toda la información del editor
      */
@@ -237,7 +245,7 @@ public class TextEditor extends JFrame {
      * @return int número de caracteres
      */
     private int knowCharsNumber() {
-        return textArea.getText().split("").length;
+        return textArea.getText().length();
     }
 
     /**
@@ -246,6 +254,7 @@ public class TextEditor extends JFrame {
      * @return int número de palabras
      */
     private int knowWordsNumber() {
-        return textArea.getText().split("\\s+").length;
+        String text = textArea.getText().trim();
+        return text.isEmpty() ? 0 : text.split("\\s+").length;
     }
 }
