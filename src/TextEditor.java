@@ -12,6 +12,8 @@ public class TextEditor extends JFrame {
     private JToggleButton italicButton;
     private JSpinner fontSizeSpinner;
     private JSlider fontSizeSlider;
+    private JCheckBox checkBold;
+    private JCheckBox checkItalic;
     private static final int INITIAL_FONT_SIZE = 12;
     private final JLabel infoText = new JLabel("Líneas: 0 Carácteres: 0 Palabras: 0 Fuente: 0");
 
@@ -138,8 +140,14 @@ public class TextEditor extends JFrame {
         boldButton = new JToggleButton("Negrita");
         italicButton = new JToggleButton("Cursiva");
 
-        boldButton.addActionListener(e -> updateTextStyle());
-        italicButton.addActionListener(e -> updateTextStyle());
+        boldButton.addActionListener(e -> {
+            checkBold.setSelected(true);
+            updateTextStyle();
+        });
+        italicButton.addActionListener(e -> {
+            checkItalic.setSelected(true);
+            updateTextStyle();
+        });
 
         styleMenu.add(boldButton);
         styleMenu.add(italicButton);
@@ -153,10 +161,34 @@ public class TextEditor extends JFrame {
      */
     private JPanel createOptionPanel() {
         JPanel optionPanel = new JPanel();
+        optionPanel.add(createBoldCheckBox());
+        optionPanel.add(createItalicCheckBox());
         optionPanel.add(createFontComboBox());
         optionPanel.add(createFontSizeSpinner());
         optionPanel.add(createFontSizeSlider());
         return optionPanel;
+    }
+
+    private JCheckBox createBoldCheckBox() {
+        checkBold = new JCheckBox();
+        checkBold.setText("Negrita");
+
+        checkBold.addActionListener(e -> {
+            boldButton.setSelected(true);
+            updateTextStyle();
+        });
+        return checkBold;
+    }
+
+    private JCheckBox createItalicCheckBox() {
+        checkItalic = new JCheckBox();
+        checkItalic.setText("Cursiva");
+
+        checkItalic.addActionListener(e -> {
+            italicButton.setSelected(true);
+            updateTextStyle();
+        });
+        return checkItalic;
     }
 
     /**
@@ -223,8 +255,16 @@ public class TextEditor extends JFrame {
      */
     private void updateTextStyle() {
         int style = Font.PLAIN;
-        if (boldButton.isSelected()) style |= Font.BOLD;
-        if (italicButton.isSelected()) style |= Font.ITALIC;
+        if (boldButton.isSelected()) {
+            style |= Font.BOLD;
+        } else {
+            checkBold.setSelected(false);
+        }
+        if (italicButton.isSelected()) {
+            style |= Font.ITALIC;
+        } else {
+            checkItalic.setSelected(false);
+        }
         textArea.setFont(new Font(textArea.getFont().getFontName(), style, textArea.getFont().getSize()));
     }
 
