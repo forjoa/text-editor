@@ -265,7 +265,7 @@ public class TextEditor extends JFrame {
         } else {
             checkItalic.setSelected(false);
         }
-        textArea.setFont(new Font(textArea.getFont().getFontName(), style, textArea.getFont().getSize()));
+        textArea.setFont(new Font(fontComboBox.getSelectedItem().toString(), style, textArea.getFont().getSize()));
     }
 
     /**
