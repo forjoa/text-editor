@@ -126,6 +126,7 @@ public class TextEditor extends JFrame {
         exitItem.addActionListener(e -> System.exit(0));
 
         fileMenu.add(newItem);
+        fileMenu.add(new JSeparator());
         fileMenu.add(exitItem);
         return fileMenu;
     }
